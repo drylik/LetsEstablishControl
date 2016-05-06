@@ -1,5 +1,5 @@
 import java.io.IOException;
-import java.net.*;
+import java.net.InetAddress;
 import java.util.Scanner;
 
 /**

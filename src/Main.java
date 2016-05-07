@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.Scanner;
 
@@ -12,21 +14,55 @@ public class Main {
         //Thread receiver = new ThreadReceiver();
         //sender.start();
         //receiver.start();
-
-        //TODO: terrible way to get IPs list, need new one
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Input start IP: ");
-        Integer startIP = Integer.parseInt(sc.nextLine());
+        //TODO: find way of getting ips only from lan
+        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a");
+        builder.redirectErrorStream(true);
         try {
+            Process proc = builder.start();
+            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            String line = br.readLine();
             InetAddress address;
-            for (int i = startIP; i <= 200; i++) {
-                address = InetAddress.getByName("192.168.1." + i);
-                System.out.print(address.isReachable(5000) ? address.getHostName() + "\n" : "");
+            for ( ; line != null; line = br.readLine()) {
+                String[] parts = line.split(" ");
+                for (String part: parts) {
+                    if (validIP(part)) {
+                        address = InetAddress.getByName(part);
+                        if (address.isReachable(5000)) {
+                            System.out.println(line);
+                            break;
+                        }
+                    }
+                }
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
 
         System.out.println("DONE!");
+    }
+
+    //found on stackoverflow *shy*
+    public static boolean validIP (String ip) {
+        try {
+            if ( ip == null || ip.isEmpty() ) {
+                return false;
+            }
+
+            String[] parts = ip.split( "\\." );
+            if ( parts.length != 4 ) {
+                return false;
+            }
+
+            for ( String s : parts ) {
+                int i = Integer.parseInt( s );
+                if ( (i < 0) || (i > 255) ) {
+                    return false;
+                }
+            }
+            return !ip.endsWith(".");
+
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
     }
 }

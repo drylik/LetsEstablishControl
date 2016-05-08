@@ -11,16 +11,26 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) {
-        //Thread sender = new ThreadSender();
+        Thread sender = new ThreadSender();
         //Thread receiver = new ThreadReceiver();
-        //sender.start();
+        sender.start();
         //receiver.start();
-        Set<InetAddress> addressSet = getLanIPs();
-        System.out.println(addressSet);
+        //Set<InetAddress> addressSet = getLanIPs();
+        //System.out.println(addressSet);
         System.out.println("DONE!");
+        while(true) {
+
+        }
     }
 
     //TODO: find way of getting ips only from lan
+    /**
+     * reading results from arp -a
+     * dividing it's lines by spaces
+     * and checking if divided part is an IP
+     * if it is then checking if it is reachable
+     * if it is then pushing it into a set
+     */
     public static Set<InetAddress> getLanIPs() {
         Set<InetAddress> addressesSet = new HashSet<>();
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a");

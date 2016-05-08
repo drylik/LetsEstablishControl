@@ -1,9 +1,12 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.omg.CORBA.portable.*;
+
+import java.io.*;
+
 import java.net.InetAddress;
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Created by Андрей on 05.05.2016.
@@ -12,12 +15,38 @@ public class Main {
 
     public static void main(String[] args) {
         //Thread sender = new ThreadSender();
-        //Thread receiver = new ThreadReceiver();
+        Thread receiver = new ThreadReceiver();
         //sender.start();
         //receiver.start();
-        Set<InetAddress> addressSet = getLanIPs();
-        System.out.println(addressSet);
+        //Set<InetAddress> addressSet = getLanIPs();
+        //System.out.println(addressSet);
+        try {
+            Scanner sc = new Scanner(System.in);
+            String text = sc.nextLine();
+            Process proc = Runtime.getRuntime().exec("cmd /k " + text);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            while (true) {
+                for (String line = br.readLine(); line != null; ) {
+                    System.out.println(line);
+                    if (br.ready()) {
+                        line = br.readLine();
+                    }
+                }
+
+                text = sc.nextLine();
+                bw.write(text);
+                bw.newLine();
+                bw.flush();
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+
         System.out.println("DONE!");
+        /*while(true) {
+
+        }*/
     }
 
     //TODO: find way of getting ips only from lan

@@ -2,7 +2,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.util.Scanner;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Андрей on 05.05.2016.
@@ -14,7 +15,14 @@ public class Main {
         //Thread receiver = new ThreadReceiver();
         //sender.start();
         //receiver.start();
-        //TODO: find way of getting ips only from lan
+        Set<InetAddress> addressSet = getLanIPs();
+        System.out.println(addressSet);
+        System.out.println("DONE!");
+    }
+
+    //TODO: find way of getting ips only from lan
+    public static Set<InetAddress> getLanIPs() {
+        Set<InetAddress> addressesSet = new HashSet<>();
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a");
         builder.redirectErrorStream(true);
         try {
@@ -24,11 +32,11 @@ public class Main {
             InetAddress address;
             for ( ; line != null; line = br.readLine()) {
                 String[] parts = line.split(" ");
-                for (String part: parts) {
+                for (String part : parts) {
                     if (validIP(part)) {
                         address = InetAddress.getByName(part);
                         if (address.isReachable(5000)) {
-                            System.out.println(line);
+                            addressesSet.add(address);
                             break;
                         }
                     }
@@ -37,8 +45,7 @@ public class Main {
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
-
-        System.out.println("DONE!");
+        return addressesSet;
     }
 
     //found on stackoverflow *shy*

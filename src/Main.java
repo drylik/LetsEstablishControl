@@ -1,8 +1,11 @@
 import java.io.*;
 import java.net.InetAddress;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.SortedMap;
 
 /**
  * Created by Андрей on 05.05.2016.
@@ -16,24 +19,28 @@ public class Main {
         //receiver.start();
         //Set<InetAddress> addressSet = getLanIPs();
         //System.out.println(addressSet);
+
+        //TODO: reduce cbuf size
         try {
             Scanner sc = new Scanner(System.in);
-            String text = sc.nextLine();
-            Process proc = Runtime.getRuntime().exec("cmd /k " + text);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            while (true) {
-                for (String line = br.readLine(); line != null; ) {
-                    System.out.println(line);
-                    if (br.ready()) {
-                        line = br.readLine();
-                    }
-                }
+            String text;
+            Process proc = Runtime.getRuntime().exec("cmd /k");
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream(), "cp866"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), "cp866"));
 
+            while (true) {
                 text = sc.nextLine();
                 bw.write(text);
                 bw.newLine();
                 bw.flush();
+
+                char[] cbuf = new char[65325];
+                for (int n = br.read(cbuf); ; n = br.read(cbuf)) {
+                    System.out.println(cbuf);
+                    if (cbuf[n - 1] == '>') {
+                        break;
+                    }
+                }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());

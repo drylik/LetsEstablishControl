@@ -1,12 +1,9 @@
-import org.omg.CORBA.portable.*;
-
-import java.io.*;
-
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.util.HashSet;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.stream.Stream;
 
 /**
  * Created by Андрей on 05.05.2016.
@@ -14,42 +11,26 @@ import java.util.stream.Stream;
 public class Main {
 
     public static void main(String[] args) {
-        //Thread sender = new ThreadSender();
-        Thread receiver = new ThreadReceiver();
-        //sender.start();
+        Thread sender = new ThreadSender();
+        //Thread receiver = new ThreadReceiver();
+        sender.start();
         //receiver.start();
         //Set<InetAddress> addressSet = getLanIPs();
         //System.out.println(addressSet);
-        try {
-            Scanner sc = new Scanner(System.in);
-            String text = sc.nextLine();
-            Process proc = Runtime.getRuntime().exec("cmd /k " + text);
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()));
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            while (true) {
-                for (String line = br.readLine(); line != null; ) {
-                    System.out.println(line);
-                    if (br.ready()) {
-                        line = br.readLine();
-                    }
-                }
-
-                text = sc.nextLine();
-                bw.write(text);
-                bw.newLine();
-                bw.flush();
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-
         System.out.println("DONE!");
-        /*while(true) {
+        while(true) {
 
-        }*/
+        }
     }
 
     //TODO: find way of getting ips only from lan
+    /**
+     * reading results from arp -a
+     * dividing it's lines by spaces
+     * and checking if divided part is an IP
+     * if it is then checking if it is reachable
+     * if it is then pushing it into a set
+     */
     public static Set<InetAddress> getLanIPs() {
         Set<InetAddress> addressesSet = new HashSet<>();
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a");

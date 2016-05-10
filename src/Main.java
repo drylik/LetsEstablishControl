@@ -13,43 +13,17 @@ import java.util.SortedMap;
 public class Main {
 
     public static void main(String[] args) {
-        //Thread sender = new ThreadSender();
+        Thread sender = new ThreadSender();
         //Thread receiver = new ThreadReceiver();
-        //sender.start();
+        sender.start();
         //receiver.start();
         //Set<InetAddress> addressSet = getLanIPs();
         //System.out.println(addressSet);
 
-        //TODO: reduce cbuf size
-        try {
-            Scanner sc = new Scanner(System.in);
-            String text;
-            Process proc = Runtime.getRuntime().exec("cmd /k");
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream(), "cp866"));
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), "cp866"));
+        System.out.println("STARTED!");
+        while(true) {
 
-            while (true) {
-                text = sc.nextLine();
-                bw.write(text);
-                bw.newLine();
-                bw.flush();
-
-                char[] cbuf = new char[65325];
-                for (int n = br.read(cbuf); ; n = br.read(cbuf)) {
-                    System.out.println(cbuf);
-                    if (cbuf[n - 1] == '>') {
-                        break;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
         }
-
-        System.out.println("DONE!");
-        /*while(true) {
-
-        }*/
     }
 
     //TODO: find way of getting ips only from lan

@@ -8,6 +8,7 @@ import java.util.Scanner;
 /**
  * Created by Андрей on 06.05.2016.
  */
+//TODO: make constructor, receiving IP
 public class ThreadSender extends Thread {
     public void run() {
         //TODO: reduce its size

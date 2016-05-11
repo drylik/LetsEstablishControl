@@ -12,6 +12,7 @@ public class ThreadSender extends Thread {
     public void run() {
         //TODO: reduce its size
         byte[] msg = new byte[65235];
+        byte[] msg = new byte[65235];
         DatagramSocket ds = null;
         DatagramPacket dp;
         try {

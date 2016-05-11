@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.SortedMap;
 
 /**
  * Created by Андрей on 05.05.2016.
@@ -13,40 +12,47 @@ import java.util.SortedMap;
 public class Main {
 
     public static void main(String[] args) {
-        Thread sender = new ThreadSender();
+        //creating a kind of mask consisting of first 3 numbers
+        /*Scanner sc = new Scanner(System.in);
+        System.out.println("Input first 3 numbers of IP: ");
+        int[] numbers = new int[3];
+        for (int i = 0; i < 3; i++) {
+            numbers[i] = sc.nextInt();
+        }*/
+        int[] numbers = {192, 168, 1};  //default for my LAN
+        Set<InetAddress> addressSet = getLanIPs(numbers);
+        System.out.println("IPs list: " + addressSet);
+        //Thread sender = new ThreadSender();
         //Thread receiver = new ThreadReceiver();
-        sender.start();
+        //sender.start();
         //receiver.start();
-        //Set<InetAddress> addressSet = getLanIPs();
-        //System.out.println(addressSet);
-
         System.out.println("STARTED!");
-        while(true) {
+        /*while(true) {
 
-        }
+        }*/
     }
 
-    //TODO: find way of getting ips only from lan
+    //TODO: find a better way of getting ips only from lAN
     /**
      * reading results from arp -a
      * dividing it's lines by spaces
-     * and checking if divided part is an IP
+     * and checking if divided part is an IP which consist necessary first numbers
      * if it is then checking if it is reachable
      * if it is then pushing it into a set
      */
-    public static Set<InetAddress> getLanIPs() {
+    private static Set<InetAddress> getLanIPs(int[] numbers) {
         Set<InetAddress> addressesSet = new HashSet<>();
         ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "arp -a");
         builder.redirectErrorStream(true);
         try {
             Process proc = builder.start();
             BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-            String line = br.readLine();
             InetAddress address;
-            for ( ; line != null; line = br.readLine()) {
+            String line = br.readLine();
+            while (line != null) {
                 String[] parts = line.split(" ");
                 for (String part : parts) {
-                    if (validIP(part)) {
+                    if (validIP(part, numbers)) {
                         address = InetAddress.getByName(part);
                         if (address.isReachable(5000)) {
                             addressesSet.add(address);
@@ -54,6 +60,7 @@ public class Main {
                         }
                     }
                 }
+                line = br.readLine();
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -61,8 +68,7 @@ public class Main {
         return addressesSet;
     }
 
-    //found on stackoverflow *shy*
-    public static boolean validIP (String ip) {
+    private static boolean validIP(String ip, int[] numbers) {
         try {
             if ( ip == null || ip.isEmpty() ) {
                 return false;
@@ -73,13 +79,13 @@ public class Main {
                 return false;
             }
 
-            for ( String s : parts ) {
-                int i = Integer.parseInt( s );
-                if ( (i < 0) || (i > 255) ) {
+            for (int i = 0; i < 3; i++) {
+                if (Integer.parseInt(parts[i]) != numbers[i]) {
                     return false;
                 }
             }
-            return !ip.endsWith(".");
+            int lastNum = Integer.parseInt(parts[3]);
+            return !ip.endsWith(".") && (lastNum > 0 && lastNum < 255);
 
         } catch (NumberFormatException nfe) {
             return false;

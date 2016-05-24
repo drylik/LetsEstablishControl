@@ -1,3 +1,5 @@
+package ru.control;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.CharBuffer;
@@ -22,8 +24,8 @@ public class Main {
         int[] numbers = {192, 168, 1};  //default for my LAN
         Set<InetAddress> addressSet = getLanIPs(numbers);
         System.out.println("IPs list: " + addressSet);
-        //Thread sender = new ThreadSender();
-        //Thread receiver = new ThreadReceiver();
+        //Thread sender = new ru.control.ThreadSender();
+        //Thread receiver = new ru.control.ThreadReceiver();
         //sender.start();
         //receiver.start();
         System.out.println("STARTED!");

@@ -1,3 +1,5 @@
+package ru.control;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -11,7 +13,7 @@ import java.util.Scanner;
 //TODO: make constructor, receiving IP
 public class ThreadSender extends Thread {
     public void run() {
-        //TODO: reduce its size
+        //TODO: reduce msg's buffer size
         byte[] msg = new byte[65235];
         DatagramSocket ds = null;
         DatagramPacket dp;

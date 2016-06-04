@@ -8,7 +8,9 @@ import java.net.SocketTimeoutException;
 import java.util.Scanner;
 
 /**
- * Created by Андрей on 06.05.2016.
+ * class ThreadSender runs sender's part
+ * sends commands which have to be performed
+ * then receives the result
  */
 //TODO: make constructor, receiving IP
 public class ThreadSender extends Thread {
@@ -27,7 +29,7 @@ public class ThreadSender extends Thread {
             Scanner sc = new Scanner(System.in);
             while (true) {
                 try {
-                    System.out.println("Input comand to send");
+                    System.out.println("Input command to send");
                     String message = sc.nextLine();
                     dp = new DatagramPacket(message.getBytes(), message.length(), otherAddress, 55555);
                     ds.send(dp);

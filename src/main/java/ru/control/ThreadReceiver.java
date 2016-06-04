@@ -1,41 +1,53 @@
 package ru.control;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 
 /**
- * Created by Андрей on 06.05.2016.
+ * class ThreadReceiver runs receiver's part
+ * receives commands, performs them
+ * and then sends the result back
  */
 public class ThreadReceiver extends Thread {
-
+    //TODO: divide run method
+    //TODO: establish sending answer
+    //TODO: reduce cbuf size
     public void run() {
         byte[] msg = new byte[2500];
         DatagramSocket ds = null;
         DatagramPacket dp;
         try {
-            InetAddress address = InetAddress.getByName("192.168.1.120");
-            ds = new DatagramSocket(55555, address);
+            InetAddress myAddress = InetAddress.getByName("192.168.1.120");
+            InetAddress otherAddress = InetAddress.getByName("192.168.1.127");
+            ds = new DatagramSocket(55555, myAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
+            Process proc = Runtime.getRuntime().exec("cmd /k");
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream(), "cp866"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), "cp866"));
             while(true) {
                 dp = new DatagramPacket(msg, msg.length);
                 ds.receive(dp);
-                //ds.setSoTimeout(10000);
                 String text = new String(msg, 0, dp.getLength());
-                ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/C", text);
-                builder.redirectErrorStream(true);
-                Process proc = builder.start();
-                BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-                String line = br.readLine();
-                for (; line != null; line = br.readLine()) {
-                    System.out.println(line);
+                bw.write(text);
+                bw.newLine();
+                bw.flush();
+
+                char[] cbuf = new char[65235];
+                for (int n = br.read(cbuf); ; n = br.read(cbuf)) {
+                    System.out.println(cbuf);
+                    byte[] byteMsg = new String(cbuf).getBytes(StandardCharsets.UTF_8);
+                    dp = new DatagramPacket(byteMsg, n*2, otherAddress, 6666);
+                    ds.send(dp);
+                    //n != -1 doesn't work
+                    if (cbuf[n - 1] == '>') {
+                        break;
+                    }
                 }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
-            return;
         } finally {
             if (ds != null) {
                 ds.close();

@@ -31,7 +31,7 @@ public class Main {
         }*/
     }
 
-    //TODO: find a better way of getting ips only from lAN
+    //TODO: isReachable badly works, fix it
     /**
      * reading results from arp -a
      * dividing it's lines by spaces
@@ -45,7 +45,7 @@ public class Main {
         builder.redirectErrorStream(true);
         try {
             Process proc = builder.start();
-            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), "cp866"));
             InetAddress address;
             String line = br.readLine();
             while (line != null) {

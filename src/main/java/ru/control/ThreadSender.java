@@ -21,9 +21,9 @@ public class ThreadSender extends Thread {
         DatagramPacket dp;
         try {
             //temporary have to type them manually until detecting LAN ips doesn't work
-            InetAddress otherAddress = InetAddress.getByName("192.168.1.120");
-            InetAddress myAddress = InetAddress.getByName("192.168.1.127");
-            ds = new DatagramSocket(6666, myAddress);
+            InetAddress laptopAddress = InetAddress.getByName("192.168.1.120");
+            InetAddress PCAddress = InetAddress.getByName("192.168.1.127");
+            ds = new DatagramSocket(6666, PCAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
             Scanner sc = new Scanner(System.in);
@@ -31,7 +31,7 @@ public class ThreadSender extends Thread {
                 try {
                     System.out.println("Input command to send");
                     String message = sc.nextLine();
-                    dp = new DatagramPacket(message.getBytes(), message.length(), otherAddress, 55555);
+                    dp = new DatagramPacket(message.getBytes(), message.length(), laptopAddress, 55555);
                     ds.send(dp);
                     System.out.println("sent!");
                     String text;
@@ -44,7 +44,7 @@ public class ThreadSender extends Thread {
                         text = new String(msg, 0, dp.getLength());
                         System.out.println(text);
                         int n = text.length() - 1;
-                        //finding first non-empty character
+                        //finding last non-empty character
                         while((a = text.charAt(n)) == '\u0000') {
                             n--;
                         }

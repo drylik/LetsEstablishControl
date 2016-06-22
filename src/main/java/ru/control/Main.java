@@ -13,16 +13,27 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         Set<InetAddress> addressSet = getLanIPs();
         System.out.println("IPs list: " + addressSet);
-        //Thread sender = new ru.control.ThreadSender();
-        //Thread receiver = new ru.control.ThreadReceiver();
-        //sender.start();
-        //receiver.start();
+        System.out.println("\nAre you Sender or Receiver? (s for sender / r for receiver)");
+        String answer;
+        do {
+            answer = sc.nextLine();
+            if (answer.equals("s")) {
+                ThreadSender sender = new ThreadSender(addressSet.iterator().next());
+                sender.start();
+            } else if (answer.equals("r")) {
+                ThreadReceiver receiver = new ThreadReceiver(addressSet.iterator().next());
+                receiver.start();
+            } else {
+                System.out.println("Wrong answer, try again");
+            }
+        } while (!(answer.equals("s") || answer.equals("r")));
         System.out.println("STARTED!");
-        /*while(true) {
+        while(true) {
 
-        }*/
+        }
     }
 
     //TODO: replace arp, because it doesn't show ips connected after me
@@ -33,6 +44,7 @@ public class Main {
      * and checking if divided part is an IP which consist necessary first numbers
      * if it is then pinging it
      * if it pings then pushing it into a set
+     * @return Set of IPs. The first one is user's
      */
     private static Set<InetAddress> getLanIPs() {
         int[] numbers = null;

@@ -12,8 +12,12 @@ import java.util.Scanner;
  * sends commands which have to be performed
  * then receives the result
  */
-//TODO: make constructor, receiving IP
+//TODO: make choice of IPs
 public class ThreadSender extends Thread {
+    private InetAddress myAddress;
+    public ThreadSender(InetAddress myAddress) {
+        this.myAddress = myAddress;
+    }
     public void run() {
         //TODO: reduce msg's buffer size
         byte[] msg = new byte[65235];
@@ -21,9 +25,8 @@ public class ThreadSender extends Thread {
         DatagramPacket dp;
         try {
             //temporary have to type them manually until detecting LAN ips doesn't work
-            InetAddress laptopAddress = InetAddress.getByName("192.168.1.120");
-            InetAddress PCAddress = InetAddress.getByName("192.168.1.127");
-            ds = new DatagramSocket(6666, PCAddress);
+            InetAddress otherAddress = InetAddress.getByName("192.168.1.120");
+            ds = new DatagramSocket(6666, myAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
             Scanner sc = new Scanner(System.in);
@@ -31,7 +34,7 @@ public class ThreadSender extends Thread {
                 try {
                     System.out.println("Input command to send");
                     String message = sc.nextLine();
-                    dp = new DatagramPacket(message.getBytes(), message.length(), laptopAddress, 55555);
+                    dp = new DatagramPacket(message.getBytes(), message.length(), otherAddress, 55555);
                     ds.send(dp);
                     System.out.println("sent!");
                     String text;
@@ -59,7 +62,7 @@ public class ThreadSender extends Thread {
             if (ds != null) {
                 ds.close();
             }
-            //System.exit(-1);
+            System.exit(-1);
         }
     }
 }

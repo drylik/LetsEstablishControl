@@ -10,16 +10,18 @@ import java.nio.charset.StandardCharsets;
  * and then sends the result back
  */
 public class ThreadReceiver extends Thread {
+    private InetAddress myAddress;
+    public ThreadReceiver(InetAddress myAddress) {
+        this.myAddress = myAddress;
+    }
     //TODO: divide run method
-    //TODO: establish sending answer
     //TODO: reduce cbuf size
     public void run() {
         byte[] msg = new byte[2500];
         DatagramSocket ds = null;
         DatagramPacket dp;
+        InetAddress otherAddress;
         try {
-            InetAddress myAddress = InetAddress.getByName("192.168.1.120");
-            InetAddress otherAddress = InetAddress.getByName("192.168.1.127");
             ds = new DatagramSocket(55555, myAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
@@ -29,6 +31,7 @@ public class ThreadReceiver extends Thread {
             while(true) {
                 dp = new DatagramPacket(msg, msg.length);
                 ds.receive(dp);
+                otherAddress = dp.getAddress();
                 String text = new String(msg, 0, dp.getLength());
                 bw.write(text);
                 bw.newLine();

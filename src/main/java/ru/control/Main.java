@@ -13,14 +13,6 @@ import java.util.Set;
 public class Main {
 
     public static void main(String[] args) {
-        //creating a kind of mask consisting of first 3 numbers
-        /*Scanner sc = new Scanner(System.in);
-        System.out.println("Input first 3 numbers of IP: ");
-        int[] numbers = new int[3];
-        for (int i = 0; i < 3; i++) {
-            numbers[i] = sc.nextInt();
-        }*/
-        int[] numbers = {192, 168, 1};  //default for my LAN
         Set<InetAddress> addressSet = getLanIPs();
         System.out.println("IPs list: " + addressSet);
         //Thread sender = new ru.control.ThreadSender();
@@ -33,9 +25,7 @@ public class Main {
         }*/
     }
 
-    //TODO: fix arp, because it doesn't show ips connected after me
-    //TODO: with network interface detect LAN ips
-    //TODO: make method parsing string ip to int array
+    //TODO: replace arp, because it doesn't show ips connected after me
     /**
      * detecting computers LAN IP and pushes it to set
      * reading results from arp -a
@@ -61,8 +51,7 @@ public class Main {
                     if (nic.getName().contains("wlan") && addr.getHostAddress().matches("[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*")) {
                         System.out.println("my LAN IP is " + addr.getHostAddress());
                         addressesSet.add(addr);
-                        //TODO: convert byte[] to int[]
-                        //numbers = addr.getAddress();
+                        numbers = getIPNumbers(addr.getHostAddress());
                     }
                 }
             }
@@ -89,6 +78,26 @@ public class Main {
         return addressesSet;
     }
 
+    /**
+     * getting first 3 numbers of IP
+     * @param ip IP address
+     * @return int array consisting of 3 first numbers of IP
+     */
+    private static int[] getIPNumbers(String ip) {
+        String[] split = ip.split("\\.");
+        int[] numbers = new int[3];
+        for (int i = 0; i < 3; i++) {
+            numbers[i] = Integer.parseInt(split[i]);
+        }
+        return numbers;
+    }
+
+    /**
+     * method checks if IP is appropriate
+     * @param ip checking IP
+     * @param numbers numbers to be checked
+     * @return
+     */
     private static boolean validIP(String ip, int[] numbers) {
         try {
             if (ip == null || ip.isEmpty()) {
@@ -101,7 +110,7 @@ public class Main {
             }
 
             for (int i = 0; i < 3; i++) {
-                if (Byte.parseByte(parts[i]) != numbers[i]) {
+                if (Integer.parseInt(parts[i]) != numbers[i]) {
                     return false;
                 }
             }

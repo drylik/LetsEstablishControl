@@ -1,10 +1,7 @@
 package ru.control;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
+import java.net.*;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -12,10 +9,11 @@ import java.util.Set;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         Scanner sc = new Scanner(System.in);
         Set<InetAddress> addressSet = getLanIPs();
         System.out.println("IPs list: " + addressSet);
+        System.out.println(Inet4Address.getLocalHost());
         System.out.println("\nAre you Sender or Receiver? (s for sender / r for receiver)");
         String answer;
         do {
@@ -36,6 +34,7 @@ public class Main {
         }
     }
 
+    //TODO: getting user's LAN ip doesn't work
     //TODO: replace arp, because it doesn't show ips connected after me
     /**
      * detecting computers LAN IP and pushes it to set
@@ -54,19 +53,8 @@ public class Main {
         Process proc;
         arpBuilder.redirectErrorStream(true);
         try {
-            Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
-            while (nics.hasMoreElements()) {
-                NetworkInterface nic = nics.nextElement();
-                Enumeration<InetAddress> addrs = nic.getInetAddresses();
-                while (addrs.hasMoreElements()) {
-                    InetAddress addr = addrs.nextElement();
-                    if (nic.getName().contains("wlan") && addr.getHostAddress().matches("[0-9]*\\.[0-9]*\\.[0-9]*\\.[0-9]*")) {
-                        System.out.println("my LAN IP is " + addr.getHostAddress());
-                        addressesSet.add(addr);
-                        numbers = getIPNumbers(addr.getHostAddress());
-                    }
-                }
-            }
+            addressesSet.add(getMyLanIP());
+            numbers = getIPNumbers(addressesSet.iterator().next().getHostAddress());
             proc = arpBuilder.start();
             BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), "cp866"));
             String line = br.readLine();
@@ -88,6 +76,32 @@ public class Main {
             System.err.println(e.getMessage());
         }
         return addressesSet;
+    }
+
+
+    private static InetAddress getMyLanIP() {
+        Enumeration<NetworkInterface> nics;
+        NetworkInterface nic;
+        Enumeration<InetAddress> addrs;
+        InetAddress addr;
+        try {
+            nics = NetworkInterface.getNetworkInterfaces();
+            while (nics.hasMoreElements()) {
+                nic = nics.nextElement();
+                addrs = nic.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    addr = addrs.nextElement();
+                    //TODO: there has to be appropriate condition to detect the necessary IP address
+                    if (addr instanceof Inet4Address && addr.isSiteLocalAddress()) {
+                        System.out.println(nic.getName() + " " + addr.getHostName() + " " + addr.getHostAddress());
+                        //return addr;
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            System.err.println(e.getMessage());
+        }
+        return null;
     }
 
     /**

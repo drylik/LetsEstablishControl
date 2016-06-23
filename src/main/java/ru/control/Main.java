@@ -34,7 +34,6 @@ public class Main {
         }
     }
 
-    //TODO: getting user's LAN ip doesn't work
     //TODO: replace arp, because it doesn't show ips connected after me
     /**
      * detecting computers LAN IP and pushes it to set
@@ -78,7 +77,7 @@ public class Main {
         return addressesSet;
     }
 
-
+    //TODO: getting user's LAN ip doesn't work
     private static InetAddress getMyLanIP() {
         Enumeration<NetworkInterface> nics;
         NetworkInterface nic;

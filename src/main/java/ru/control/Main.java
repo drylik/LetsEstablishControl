@@ -12,28 +12,41 @@ public class Main {
         Scanner sc = new Scanner(System.in);
         Set<InetAddress> addressSet = getLanIPs();
         System.out.println("IPs list: " + addressSet);
-        System.out.println("\nAre you Sender or Receiver? (s for sender / r for receiver)");
         String answer;
-        do {
-            answer = sc.nextLine();
-            switch (answer) {
-                case "s":
-                    ThreadSender sender = new ThreadSender(addressSet.iterator().next());
-                    sender.start();
-                    break;
-                case "r":
-                    ThreadReceiver receiver = new ThreadReceiver(addressSet.iterator().next());
-                    receiver.start();
-                    break;
-                default:
+        User user;
+        if (args.length != 0 && (args[0].equals("s") || args[0].equals("r"))) {
+            answer = args[0];
+        } else {
+            System.out.println("\nAre you Sender or Receiver? (s for sender / r for receiver)");
+            do {
+                answer = sc.nextLine();
+                if (!(answer.equals("s") || answer.equals("r"))) {
                     System.out.println("Wrong answer, try again");
-                    break;
-            }
-        } while (!(answer.equals("s") || answer.equals("r")));
-        System.out.println("STARTED!");
-        while(true) {
-
+                }
+            } while (!(answer.equals("s") || answer.equals("r")));
         }
+        switch (answer) {
+            case "s":
+                user = new Sender(addressSet.iterator().next());
+                System.out.println("STARTED!");
+                user.start();
+                while (true) {
+                    System.out.println("Input command to send");
+                    String message = sc.nextLine();
+                    user.setTextToSend(message);
+                }
+            case "r":
+                user = new Receiver(addressSet.iterator().next());
+                System.out.println("STARTED!");
+                user.start();
+                while (true) {
+
+                }
+            default:
+                user = null;
+                break;
+        }
+
     }
 
     //TODO: replace arp, because it doesn't show ips connected after me
@@ -103,7 +116,7 @@ public class Main {
                     //TODO: there has to be appropriate condition to detect the necessary IP address
                     if (addr instanceof Inet4Address && addr.isSiteLocalAddress()) {
                         System.out.println(nic.getName() + " " + addr.getHostName() + " " + addr.getHostAddress());
-                        //return addr;
+                        return addr;
                     }
                 }
             }

@@ -5,13 +5,13 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 
 /**
- * class ThreadReceiver runs receiver's part
+ * class Receiver runs receiver's part
  * receives commands, performs them
  * and then sends the result back
  */
-public class ThreadReceiver extends Thread {
+public class Receiver extends User {
     private InetAddress myAddress;
-    public ThreadReceiver(InetAddress myAddress) {
+    public Receiver(InetAddress myAddress) {
         this.myAddress = myAddress;
     }
     //TODO: divide run method
@@ -22,7 +22,7 @@ public class ThreadReceiver extends Thread {
         DatagramPacket dp;
         InetAddress otherAddress;
         try {
-            ds = new DatagramSocket(55555, myAddress);
+            ds = new DatagramSocket(UDP_COMMANDS_PORT, myAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
             Process proc = Runtime.getRuntime().exec("cmd /k");
@@ -41,7 +41,7 @@ public class ThreadReceiver extends Thread {
                 for (int n = br.read(cbuf); ; n = br.read(cbuf)) {
                     System.out.println(cbuf);
                     byte[] byteMsg = new String(cbuf).getBytes(StandardCharsets.UTF_8);
-                    dp = new DatagramPacket(byteMsg, n*2, otherAddress, 6666);
+                    dp = new DatagramPacket(byteMsg, n*2, otherAddress, UDP_ANSWERS_PORT);
                     ds.send(dp);
                     //n != -1 doesn't work
                     if (cbuf[n - 1] == '>') {
@@ -57,5 +57,10 @@ public class ThreadReceiver extends Thread {
             }
             System.exit(-1);
         }
+    }
+
+    @Override
+    public void setTextToSend(String textToSend) {
+
     }
 }

@@ -28,7 +28,7 @@ public class Receiver extends User {
             Process proc = Runtime.getRuntime().exec("cmd /k");
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream(), "cp866"));
             BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), "cp866"));
-            while(true) {
+            while(more) {
                 dp = new DatagramPacket(msg, msg.length);
                 ds.receive(dp);
                 otherAddress = dp.getAddress();

@@ -31,7 +31,7 @@ public class Sender extends User {
             ds = new DatagramSocket(UDP_ANSWERS_PORT, myAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
-            while (true) {
+            while (more) {
                 synchronized (this) {
                     try {
                         this.wait();

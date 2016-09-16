@@ -63,4 +63,9 @@ public class Receiver extends User {
     public void setTextToSend(String textToSend) {
 
     }
+
+    @Override
+    public StringBuilder getAnswerText() {
+        return null;
+    }
 }

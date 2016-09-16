@@ -15,10 +15,12 @@ import java.net.SocketTimeoutException;
 public class Sender extends User {
 
     private String textToSend;
-    private InetAddress myAddress;
+    private StringBuilder answerText;
+
     public Sender(InetAddress myAddress) {
         this.myAddress = myAddress;
         this.textToSend = "";
+        this.answerText = new StringBuilder();
     }
     public void run() {
         //TODO: reduce msg's buffer size
@@ -32,9 +34,10 @@ public class Sender extends User {
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
             while (more) {
-                synchronized (this) {
+                synchronized (gotTextMonitor) {
                     try {
-                        this.wait();
+                        //waiting for text to send
+                        gotTextMonitor.wait();
                         dp = new DatagramPacket(textToSend.getBytes(), textToSend.length(), otherAddress, UDP_COMMANDS_PORT);
                         ds.send(dp);
                         String text;
@@ -45,7 +48,7 @@ public class Sender extends User {
                             ds.setSoTimeout(2000);
                             ds.receive(dp);
                             text = new String(msg, 0, dp.getLength());
-                            System.out.println(text);
+                            this.answerText.append(text);
                             int n = text.length() - 1;
                             //finding last non-empty character
                             while ((a = text.charAt(n)) == '\u0000') {
@@ -53,7 +56,7 @@ public class Sender extends User {
                             }
                         }
                     } catch (SocketTimeoutException r) {
-                        System.out.println("Didn't receive answer");
+                        this.answerText.append("Didn't receive answer.\n");
                     } catch (InterruptedException e) {
                         System.err.println(e.getMessage());
                     }
@@ -70,8 +73,15 @@ public class Sender extends User {
     }
 
     @Override
-    public synchronized void setTextToSend(String textToSend) {
-        this.textToSend = textToSend;
-        this.notify();
+    public void setTextToSend(String textToSend) {
+        synchronized (gotTextMonitor) {
+            this.textToSend = textToSend;
+            gotTextMonitor.notify();
+        }
+    }
+
+    @Override
+    public StringBuilder getAnswerText() {
+        return answerText;
     }
 }

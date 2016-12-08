@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 /**
  * class Receiver runs receiver's part
@@ -69,10 +68,5 @@ public class Receiver extends User {
     @Override
     public void setTextToSend(String textToSend) {
 
-    }
-
-    @Override
-    public StringBuilder getAnswerText() {
-        return null;
     }
 }

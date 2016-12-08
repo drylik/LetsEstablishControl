@@ -48,6 +48,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>ru.control.main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

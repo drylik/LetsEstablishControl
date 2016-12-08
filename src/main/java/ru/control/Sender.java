@@ -1,6 +1,11 @@
 package ru.control;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -14,13 +19,15 @@ import java.net.SocketTimeoutException;
 //TODO: make choice of IPs
 public class Sender extends User {
 
-    private String textToSend;
-    private StringBuilder answerText;
+    private static final Logger log = LogManager.getLogger(Sender.class.getName());
 
-    public Sender(InetAddress myAddress) {
+    private String textToSend;
+
+    public Sender(InetAddress myAddress, InetAddress otherAddress, OutputStream out) {
         this.myAddress = myAddress;
+        this.otherAddress = otherAddress;
         this.textToSend = "";
-        this.answerText = new StringBuilder();
+        this.out = out;
     }
     public void run() {
         //TODO: reduce msg's buffer size
@@ -28,8 +35,6 @@ public class Sender extends User {
         DatagramSocket ds = null;
         DatagramPacket dp;
         try {
-            //temporary have to type them manually until detecting LAN ips doesn't work
-            InetAddress otherAddress = InetAddress.getByName("192.168.1.120");
             ds = new DatagramSocket(UDP_ANSWERS_PORT, myAddress);
             ds.setBroadcast(true);
             ds.setReuseAddress(true);
@@ -48,22 +53,23 @@ public class Sender extends User {
                             ds.setSoTimeout(2000);
                             ds.receive(dp);
                             text = new String(msg, 0, dp.getLength());
-                            this.answerText.append(text);
+                            out.write(text.getBytes());
                             int n = text.length() - 1;
                             //finding last non-empty character
                             while ((a = text.charAt(n)) == '\u0000') {
                                 n--;
                             }
                         }
-                    } catch (SocketTimeoutException r) {
-                        this.answerText.append("Didn't receive answer.\n");
+                    } catch (SocketTimeoutException e) {
+                        out.write("Didn't receive any answer".getBytes());
+                        log.log(Level.INFO, "Didn't receive any answer", e);
                     } catch (InterruptedException e) {
-                        System.err.println(e.getMessage());
+                        log.log(Level.ERROR, "Error during waiting for text", e);
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            log.log(Level.ERROR, "Error during sending text", e);
         } finally {
             if (ds != null) {
                 ds.close();
@@ -78,10 +84,5 @@ public class Sender extends User {
             this.textToSend = textToSend;
             gotTextMonitor.notify();
         }
-    }
-
-    @Override
-    public StringBuilder getAnswerText() {
-        return answerText;
     }
 }

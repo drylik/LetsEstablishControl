@@ -1,8 +1,13 @@
 package ru.control;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * class Receiver runs receiver's part
@@ -10,9 +15,12 @@ import java.nio.charset.StandardCharsets;
  * and then sends the result back
  */
 public class Receiver extends User {
-    private InetAddress myAddress;
-    public Receiver(InetAddress myAddress) {
+
+    private static final Logger log = LogManager.getLogger(Receiver.class.getName());
+
+    public Receiver(InetAddress myAddress, OutputStream out) {
         this.myAddress = myAddress;
+        this.out = out;
     }
     //TODO: divide run method
     //TODO: reduce cbuf size
@@ -20,7 +28,6 @@ public class Receiver extends User {
         byte[] msg = new byte[2500];
         DatagramSocket ds = null;
         DatagramPacket dp;
-        InetAddress otherAddress;
         try {
             ds = new DatagramSocket(UDP_COMMANDS_PORT, myAddress);
             ds.setBroadcast(true);
@@ -39,7 +46,7 @@ public class Receiver extends User {
 
                 char[] cbuf = new char[65235];
                 for (int n = br.read(cbuf); ; n = br.read(cbuf)) {
-                    System.out.println(cbuf);
+                    out.write(new String(cbuf,0, n).getBytes());
                     byte[] byteMsg = new String(cbuf).getBytes(StandardCharsets.UTF_8);
                     dp = new DatagramPacket(byteMsg, n*2, otherAddress, UDP_ANSWERS_PORT);
                     ds.send(dp);
@@ -50,7 +57,7 @@ public class Receiver extends User {
                 }
             }
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            log.log(Level.ERROR, "Error during sending answers", e);
         } finally {
             if (ds != null) {
                 ds.close();

@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by Андрей on 07.12.2016.
+ * Some utilities to get IPs
  */
 class IPUtils {
 
@@ -30,7 +30,7 @@ class IPUtils {
      * if it pings then pushing it into a set
      * @return Set of IPs. The first one is user's
      */
-    public static Set<InetAddress> getLanIPs() {
+    static Set<InetAddress> getLanIPs() {
         int[] numbers;
         InetAddress myLanIP;
         Set<InetAddress> addressesSet = new HashSet<>();
@@ -72,7 +72,7 @@ class IPUtils {
      * method scans NetworkInterfaces and finds out which IP is in LAN
      * @return InetAddress IP in LAN or null in case of error or not finding appropriate IP
      */
-    public static InetAddress getMyLanIP() {
+    private static InetAddress getMyLanIP() {
         Enumeration<NetworkInterface> nics;
         NetworkInterface nic;
         Enumeration<InetAddress> addrs;
